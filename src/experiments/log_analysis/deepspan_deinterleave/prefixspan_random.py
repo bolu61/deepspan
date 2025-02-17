@@ -12,7 +12,7 @@ from experiments.log_analysis.deepspan_deinterleave.metrics.grouping import (
     grouping_alignment,
     mean_grouping_length,
 )
-from prefixspan import prefixspan
+from prefixspan import make_trie
 
 from deepspan.separate import separate
 
@@ -41,14 +41,13 @@ def main(*_):
 
     _, sequence_train = next(sequences)
     dataset = make_dataset(sequence_train, LEN_SEQUENCE)
-    trie = prefixspan(dataset, minsup=MINSUP)
+    trie = make_trie(dataset, minsup=MINSUP)
 
     choices = [
         jnp.stack(group)[:, 0]
         for group in separate(
             trie=trie,
             seq=jnp.stack(next(sequences)).transpose(),
-            maxlen=LEN_SEQUENCE,
             key=lambda cy: cy[1].item(),
         )
     ]
